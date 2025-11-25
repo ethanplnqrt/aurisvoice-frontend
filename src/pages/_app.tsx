@@ -31,7 +31,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <ClerkProvider
-      publishableKey={publishableKey}
+      publishableKey={publishableKey as string}
       signInUrl="/sign-in"
       signUpUrl="/sign-up"
       afterSignInUrl="/dashboard"
