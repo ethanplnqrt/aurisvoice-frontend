@@ -34,12 +34,19 @@ export function useDubbingHistory() {
           throw new Error('NEXT_PUBLIC_BACKEND_URL is not defined');
         }
 
+        // Get user ID from Clerk if available
+        const userId = typeof window !== 'undefined' ? (window as any).__clerkUserId : null;
+        
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json',
+        };
+        if (userId) {
+          headers['x-user-id'] = userId;
+        }
+        
         const response = await fetch(`${backendUrl}/api/dubbing/history`, {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-user-id': 'TEST_USER_HISTORY' // Placeholder for future authentication
-          }
+          headers
         });
 
         if (!response.ok) {

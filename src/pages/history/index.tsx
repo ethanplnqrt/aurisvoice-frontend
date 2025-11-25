@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
+import { useUser, RedirectToSignIn } from '@clerk/nextjs';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -31,6 +32,28 @@ interface HistoryProject {
 }
 
 export default function History() {
+  const { isSignedIn, isLoaded, user } = useUser();
+  
+  // Set user ID in window for API calls
+  useEffect(() => {
+    if (user?.id) {
+      (window as any).__clerkUserId = user.id;
+    }
+  }, [user]);
+
+  // Protect page - redirect to sign-in if not authenticated
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-950 via-purple-950 to-black">
+        <div className="text-white text-lg">Chargement...</div>
+      </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    return <RedirectToSignIn />;
+  }
+
   const [historyProjects, setHistoryProjects] = useState<HistoryProject[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasError, setHasError] = useState<boolean>(false);
@@ -50,10 +73,17 @@ export default function History() {
           throw new Error('NEXT_PUBLIC_BACKEND_URL is not defined');
         }
 
+        // Get user ID from Clerk
+        const userId = user?.id || null;
+        const headers: HeadersInit = { 
+          'Accept': 'application/json' 
+        };
+        if (userId) {
+          headers['x-user-id'] = userId;
+        }
+        
         const res = await fetch(`${API_URL}/api/history`, { 
-          headers: { 
-            'Accept': 'application/json' 
-          } 
+          headers
         });
         
         if (res.status === 404) {

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/i18n/useTranslation';
+import { UserButton } from '@clerk/nextjs';
+import { useUser } from '@clerk/nextjs';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { InstallButton } from './InstallButton';
@@ -13,6 +15,7 @@ import { Mic2 } from 'lucide-react';
 export function Navbar() {
   const { t } = useTranslation();
   const router = useRouter();
+  const { isSignedIn } = useUser();
   const [scrolled, setScrolled] = useState(false);
 
   // Detect scroll for glassmorphism effect
@@ -103,6 +106,19 @@ export function Navbar() {
             <InstallButton />
             <ThemeToggle />
             <LanguageSwitcher />
+            {isSignedIn ? (
+              <UserButton afterSignOutUrl="/" />
+            ) : (
+              <Link href="/sign-in">
+                <motion.button
+                  className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white rounded-lg text-sm font-medium transition-all"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Connexion
+                </motion.button>
+              </Link>
+            )}
           </div>
         </div>
       </div>

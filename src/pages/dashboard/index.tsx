@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useUser, RedirectToSignIn } from '@clerk/nextjs';
 import {
   Headphones,
   Clock,
@@ -29,6 +30,28 @@ interface Project {
 }
 
 export default function Dashboard() {
+  const { isSignedIn, isLoaded, user } = useUser();
+  
+  // Set user ID in window for API calls
+  useEffect(() => {
+    if (user?.id) {
+      (window as any).__clerkUserId = user.id;
+    }
+  }, [user]);
+
+  // Protect page - redirect to sign-in if not authenticated
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-white">Chargement...</div>
+      </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    return <RedirectToSignIn />;
+  }
+
   // Real projects from backend
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -49,8 +72,16 @@ export default function Dashboard() {
         if (!baseUrl) {
           throw new Error('NEXT_PUBLIC_BACKEND_URL non défini');
         }
+        
+        // Get user ID from Clerk
+        const userId = user?.id || null;
+        const headers: HeadersInit = { 'Accept': 'application/json' };
+        if (userId) {
+          headers['x-user-id'] = userId;
+        }
+        
         const res = await fetch(`${baseUrl}/api/projects`, {
-          headers: { 'Accept': 'application/json' }
+          headers
         });
         if (res.status === 404) {
           if (isMounted) setProjects([]);

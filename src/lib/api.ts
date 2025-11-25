@@ -4,6 +4,22 @@
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL as string;
 
+/**
+ * Get Clerk user ID for API calls
+ * This function should be called from client components using useUser()
+ */
+export function getUserId(): string | null {
+  if (typeof window === 'undefined') return null;
+  
+  // Try to get from Clerk (client-side only)
+  try {
+    // This will be set by the component calling the API
+    return (window as any).__clerkUserId || null;
+  } catch {
+    return null;
+  }
+}
+
 // Safety check for API URL
 if (!API_URL) {
   console.warn('⚠️ NEXT_PUBLIC_BACKEND_URL is not defined. API calls will fail in production.');
@@ -47,14 +63,16 @@ export async function uploadFile(
 /**
  * Generate AI dub for uploaded file
  * @param file - Audio or video file to dub
- * @param targetLanguage - Target language code (fr, en, es, etc.)
+ * @param targetLanguage - Target language code (fr-FR, en-US, es-ES, etc.)
  * @param sourceLanguage - Source language code (optional)
+ * @param voiceId - Voice ID for OpenAI TTS (optional, falls back to backend default)
  * @returns Promise with audio URL or error
  */
 export async function generateDub(
   file: File,
   targetLanguage: string,
-  sourceLanguage?: string
+  sourceLanguage?: string,
+  voiceId?: string | null
 ): Promise<ApiResponse> {
   try {
     // Validate file
@@ -75,13 +93,29 @@ export async function generateDub(
     if (sourceLanguage) {
       formData.append('sourceLanguage', sourceLanguage);
     }
+    // Ajouter voiceId si fourni (le backend utilisera sa valeur par défaut si null/undefined)
+    if (voiceId) {
+      formData.append('voiceModel', voiceId);
+    }
 
     console.log(`📤 Uploading file: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
     console.log(`🌍 Target language: ${targetLanguage}`);
+    if (voiceId) {
+      console.log(`🎤 Voice model: ${voiceId}`);
+    }
 
+    // Get user ID from Clerk (if available)
+    const userId = getUserId();
+    
     // Send request to backend
+    const headers: HeadersInit = {};
+    if (userId) {
+      headers['x-user-id'] = userId;
+    }
+    
     const response = await fetch(`${API_URL}/api/dub`, {
       method: 'POST',
+      headers,
       body: formData,
     });
 

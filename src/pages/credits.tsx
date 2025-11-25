@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useUser, RedirectToSignIn } from '@clerk/nextjs';
 import {
   CreditCard,
   Sparkles,
@@ -22,6 +23,25 @@ interface PricingPlan {
   credits: number;
   description: string;
   popular?: boolean;
+}
+
+export default function CreditsPage() {
+  const { isSignedIn, isLoaded } = useUser();
+
+  // Protect page - redirect to sign-in if not authenticated
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-950 via-purple-950 to-black">
+        <div className="text-white text-lg">Chargement...</div>
+      </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    return <RedirectToSignIn />;
+  }
+
+  return <CreditsContent />;
 }
 
 const PLANS: PricingPlan[] = [
@@ -49,12 +69,20 @@ const PLANS: PricingPlan[] = [
   },
 ];
 
-export default function Credits() {
+function CreditsContent() {
+  const { user } = useUser();
   const [credits, setCredits] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  // Set user ID in window for API calls
+  useEffect(() => {
+    if (user?.id) {
+      (window as any).__clerkUserId = user.id;
+    }
+  }, [user]);
 
   // Fetch current credits
   useEffect(() => {

@@ -55,7 +55,7 @@ export default function Home() {
           </p>
 
           {/* CTA Button */}
-          <Link href="/dashboard">
+          <Link href="/create-dub">
             <button className="group relative inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white text-lg font-bold rounded-full shadow-2xl hover:shadow-purple-500/50 transition-all duration-300">
               <span>Démarrer le Doublage (Gratuit ou Pro)</span>
               <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />

@@ -2,6 +2,7 @@ import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
 import { AnimatePresence } from 'framer-motion';
+import { ClerkProvider } from '@clerk/nextjs';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
@@ -23,8 +24,9 @@ export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-950 via-purple-950 to-black">
+    <ClerkProvider>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-950 via-purple-950 to-black">
         {/* Subtle noise texture overlay for cinematic depth */}
         <div 
           className="fixed inset-0 opacity-[0.015] pointer-events-none z-0"
@@ -58,6 +60,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <CapacitorDetector />
       </div>
     </ThemeProvider>
+    </ClerkProvider>
   );
 }
 
