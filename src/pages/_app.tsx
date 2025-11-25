@@ -20,18 +20,23 @@ if (typeof window !== "undefined") {
   }
 }
 
-if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
-  console.warn("⚠️ Clerk publishable key is missing at build time.");
+const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+if (!publishableKey) {
+  throw new Error(
+    "❌ ERROR: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is missing at build time."
+  );
 }
 
-const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";
+// Type assertion: after the check, publishableKey is guaranteed to be a string
+const clerkPublishableKey: string = publishableKey;
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
 
   return (
     <ClerkProvider
-      publishableKey={publishableKey as string}
+      publishableKey={clerkPublishableKey}
       signInUrl="/sign-in"
       signUpUrl="/sign-up"
       afterSignInUrl="/dashboard"
