@@ -20,11 +20,11 @@ if (typeof window !== "undefined") {
   }
 }
 
-const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
-if (!publishableKey) {
-  console.error("❌ Missing NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY");
+if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
+  console.warn("⚠️ Clerk publishable key is missing at build time.");
 }
+
+const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
