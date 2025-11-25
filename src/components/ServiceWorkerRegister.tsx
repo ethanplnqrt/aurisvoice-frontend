@@ -4,6 +4,12 @@ import { useEffect } from 'react';
 
 export function ServiceWorkerRegister() {
   useEffect(() => {
+    // Only register in production environment
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[SW] Service Worker registration skipped in development');
+      return;
+    }
+
     // Only register in browser environment
     if (typeof window === 'undefined') {
       return;

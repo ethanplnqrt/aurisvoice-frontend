@@ -2,6 +2,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { Mic2, Zap, Globe, ArrowRight, Sparkles } from 'lucide-react';
 
+// Cache invalidation comment for Vercel rebuild
 /**
  * Landing Page principale d'AurisVoice
  * Composant serveur pour performance optimale
