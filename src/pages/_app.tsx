@@ -2,7 +2,7 @@ import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
 import { AnimatePresence } from 'framer-motion';
-import { ClerkProvider } from '@clerk/nextjs';
+import { ClerkProvider } from "@clerk/clerk-react";
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
@@ -20,11 +20,23 @@ if (typeof window !== "undefined") {
   }
 }
 
+const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+if (!publishableKey) {
+  console.error("❌ Missing NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY");
+}
+
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
 
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      publishableKey={publishableKey}
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
+      afterSignInUrl="/dashboard"
+      afterSignUpUrl="/dashboard"
+    >
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-950 via-purple-950 to-black">
         {/* Subtle noise texture overlay for cinematic depth */}

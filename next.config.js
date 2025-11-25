@@ -4,6 +4,8 @@ const nextConfig = {
   experimental: {
     typedRoutes: false,
   },
+  output: undefined,   // IMPORTANT : empêche l'export
+  trailingSlash: false,
 };
 
 module.exports = nextConfig;
