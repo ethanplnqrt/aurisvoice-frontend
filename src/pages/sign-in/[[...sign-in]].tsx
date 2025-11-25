@@ -8,3 +8,5 @@ export default function SignInPage() {
   );
 }
 
+export const getServerSideProps = () => ({ props: {} });
+

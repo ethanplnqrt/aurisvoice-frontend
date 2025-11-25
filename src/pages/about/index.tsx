@@ -134,3 +134,5 @@ export default function About() {
   );
 }
 
+export const getServerSideProps = () => ({ props: {} });
+

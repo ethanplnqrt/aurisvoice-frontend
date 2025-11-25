@@ -421,3 +421,5 @@ function CreditsContent() {
   );
 }
 
+export const getServerSideProps = () => ({ props: {} });
+

@@ -565,3 +565,5 @@ export default function StudioPlayer() {
   );
 }
 
+export const getServerSideProps = () => ({ props: {} });
+

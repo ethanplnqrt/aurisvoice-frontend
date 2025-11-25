@@ -474,3 +474,5 @@ export default function History() {
     </>
   );
 }
+
+export const getServerSideProps = () => ({ props: {} });

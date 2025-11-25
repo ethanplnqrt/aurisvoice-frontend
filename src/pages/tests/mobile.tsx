@@ -353,3 +353,5 @@ export default function MobileTestsPage() {
   );
 }
 
+export const getServerSideProps = () => ({ props: {} });
+

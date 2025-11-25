@@ -40,3 +40,5 @@ export default function CreateDubPage() {
   );
 }
 
+export const getServerSideProps = () => ({ props: {} });
+

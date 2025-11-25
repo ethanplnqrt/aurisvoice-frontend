@@ -132,3 +132,5 @@ export default function PaymentCancel() {
   );
 }
 
+export const getServerSideProps = () => ({ props: {} });
+

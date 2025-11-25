@@ -527,3 +527,5 @@ export default function Dashboard() {
   );
 }
 
+export const getServerSideProps = () => ({ props: {} });
+
