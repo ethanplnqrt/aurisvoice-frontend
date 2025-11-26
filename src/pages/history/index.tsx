@@ -26,14 +26,23 @@ interface HistoryProject {
   file: string;
   lang: string;
   model: string;
+  provider: string;
   date: string;
   duration: string;
-  provider: string;
+  fileUrl?: string;
 }
 
 export default function History() {
   const { isSignedIn, isLoaded, user } = useUser();
   
+  // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
+  const [historyProjects, setHistoryProjects] = useState<HistoryProject[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [hasError, setHasError] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [languageFilter, setLanguageFilter] = useState('all');
+  const [modelFilter, setModelFilter] = useState('all');
+
   // Set user ID in window for API calls
   useEffect(() => {
     if (user?.id) {
@@ -41,38 +50,17 @@ export default function History() {
     }
   }, [user]);
 
-  // Protect page - redirect to sign-in if not authenticated
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-950 via-purple-950 to-black">
-        <div className="text-white text-lg">Chargement...</div>
-      </div>
-    );
-  }
-
-  if (!isSignedIn) {
-    return <RedirectToSignIn />;
-  }
-
-  const [historyProjects, setHistoryProjects] = useState<HistoryProject[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [hasError, setHasError] = useState<boolean>(false);
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const [languageFilter, setLanguageFilter] = useState('all');
-  const [modelFilter, setModelFilter] = useState('all');
-
+  // Fetch history data
   useEffect(() => {
+    if (!isLoaded || !user) return;
+
     let mounted = true;
     (async () => {
       setIsLoading(true);
       setHasError(false);
       try {
-        const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL as string;
-        if (!API_URL) {
-          throw new Error('NEXT_PUBLIC_BACKEND_URL is not defined');
-        }
-
+        const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://aurisvoice.onrender.com';
+        
         // Get user ID from Clerk
         const userId = user?.id || null;
         const headers: HeadersInit = { 
@@ -82,7 +70,8 @@ export default function History() {
           headers['x-user-id'] = userId;
         }
         
-        const res = await fetch(`${API_URL}/api/history`, { 
+        const res = await fetch(`${baseUrl}/api/history`, { 
+          method: 'GET',
           headers
         });
         
@@ -94,31 +83,52 @@ export default function History() {
         }
         
         if (!res.ok) {
-          const text = await res.text().catch(() => '');
-          console.error('History API error:', res.status, text);
           throw new Error(`API Error: ${res.status}`);
         }
 
         const contentType = res.headers.get('content-type');
         if (!contentType || !contentType.includes('application/json')) {
-          const text = await res.text().catch(() => '');
-          console.error('History API returned non-JSON response:', text.substring(0, 200));
           throw new Error('Invalid response format from history API');
         }
 
         const data = await res.json();
-        if (mounted) {
-          const list = Array.isArray(data) ? data : (Array.isArray(data?.history) ? data.history : []);
-          setHistoryProjects(list as HistoryProject[]);
+        
+        // Handle response format: { ok: true, projects: [...], total: number }
+        if (data.ok === false) {
+          throw new Error(data.error || 'Failed to fetch history');
         }
-      } catch (_) {
-        if (mounted) setHasError(true);
+        
+        // Extract projects array from response
+        const projects = Array.isArray(data.projects) ? data.projects : [];
+        
+        if (mounted) {
+          setHistoryProjects(projects as HistoryProject[]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch history", error);
+        if (mounted) {
+          setHistoryProjects([]); // Safe fallback to empty array
+          setHasError(true);
+        }
       } finally {
         if (mounted) setIsLoading(false);
       }
     })();
     return () => { mounted = false; };
-  }, []);
+  }, [isLoaded, user]);
+
+  // AFTER ALL HOOKS → CONDITIONS ARE ALLOWED
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-950 via-purple-950 to-black">
+        <div className="text-white text-lg">Chargement...</div>
+      </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    return <RedirectToSignIn />;
+  }
 
   const languageFlags: Record<string, string> = {
     fr: '🇫🇷',
@@ -146,13 +156,30 @@ export default function History() {
 
   // Actions
   const handlePlay = (project: HistoryProject) => {
-    console.log('▶️ Playing:', project.file);
-    alert(`Lecture de ${project.file}`);
+    if (project.fileUrl) {
+      const audio = new Audio(project.fileUrl);
+      audio.play().catch(err => {
+        console.error('Error playing audio:', err);
+        alert(`Impossible de lire ${project.file}`);
+      });
+    } else {
+      console.log('▶️ Playing:', project.file);
+      alert(`Lecture de ${project.file} (URL non disponible)`);
+    }
   };
 
   const handleDownload = (project: HistoryProject) => {
-    console.log('📥 Downloading:', project.file);
-    alert(`Téléchargement de ${project.file}`);
+    if (project.fileUrl) {
+      const link = document.createElement('a');
+      link.href = project.fileUrl;
+      link.download = project.file;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      console.log('📥 Downloading:', project.file);
+      alert(`Téléchargement de ${project.file} (URL non disponible)`);
+    }
   };
 
   const handleReDub = (project: HistoryProject) => {

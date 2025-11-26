@@ -16,18 +16,31 @@ export default function Dashboard() {
   useEffect(() => {
     if (!isLoaded || !user) return;
 
+    const baseUrl =
+      process.env.NEXT_PUBLIC_BACKEND_URL || "https://aurisvoice.onrender.com";
+
     async function fetchCredits() {
+      if (!user) return;
+
       try {
         setLoadingCredits(true);
 
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/${user.id}/credits`
-        );
+        const res = await fetch(`${baseUrl}/api/credits`, {
+          headers: {
+            "x-user-id": user.id,
+          },
+        });
 
         const data = await res.json();
-        setCredits(data.credits ?? 0);
-      } catch (err) {
-        console.error("Erreur API crédits :", err);
+
+        if (!data.ok) {
+          setCredits(0);
+          return;
+        }
+
+        setCredits(data.credits || 0);
+      } catch (error) {
+        console.error("Failed to fetch credits", error);
         setCredits(0);
       } finally {
         setLoadingCredits(false);
