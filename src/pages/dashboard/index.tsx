@@ -15,30 +15,29 @@ export default function Dashboard() {
   // Charger les crédits une fois l'utilisateur chargé
   useEffect(() => {
     if (!isLoaded || !user || !user.id) return;
-
+  
     const baseUrl =
       process.env.NEXT_PUBLIC_BACKEND_URL || "https://aurisvoice.onrender.com";
-
+  
     async function fetchCredits() {
-      if (!user) return;
-
+      if (!user || !user.id) return;
+  
       try {
         setLoadingCredits(true);
-
+  
         const res = await fetch(`${baseUrl}/api/credits`, {
           headers: {
             "x-user-id": user.id as string,
-
           },
         });
-
+  
         const data = await res.json();
-
+  
         if (!data.ok) {
           setCredits(0);
           return;
         }
-
+  
         setCredits(data.credits || 0);
       } catch (error) {
         console.error("Failed to fetch credits", error);
@@ -47,9 +46,10 @@ export default function Dashboard() {
         setLoadingCredits(false);
       }
     }
-
+  
     fetchCredits();
   }, [isLoaded, user]);
+  
 
   // Redirection si pas connecté (pas un hook)
   useEffect(() => {
