@@ -1,6 +1,8 @@
-import { useUser, RedirectToSignIn } from '@clerk/nextjs';
+import { useUser, RedirectToSignIn } from '@clerk/clerk-react';
 import Head from 'next/head';
-import { DubbingForm } from '@/components/DubbingForm';
+import dynamic from 'next/dynamic';
+
+const DubbingForm = dynamic(() => import('@/components/DubbingForm').then(mod => ({ default: mod.DubbingForm })), { ssr: false });
 
 export default function CreateDubPage() {
   const { isSignedIn, isLoaded } = useUser();

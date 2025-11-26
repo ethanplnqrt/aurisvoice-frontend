@@ -106,7 +106,7 @@ export async function generateDub(
 
     // Get user ID from Clerk (if available)
     const userId = getUserId();
-    
+
     // Send request to backend
     const headers: HeadersInit = {};
     if (userId) {
