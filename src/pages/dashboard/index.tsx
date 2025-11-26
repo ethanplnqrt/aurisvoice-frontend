@@ -14,7 +14,7 @@ export default function Dashboard() {
 
   // Charger les crédits une fois l'utilisateur chargé
   useEffect(() => {
-    if (!isLoaded || !user) return;
+    if (!isLoaded || !user || !user.id) return;
 
     const baseUrl =
       process.env.NEXT_PUBLIC_BACKEND_URL || "https://aurisvoice.onrender.com";
@@ -27,7 +27,8 @@ export default function Dashboard() {
 
         const res = await fetch(`${baseUrl}/api/credits`, {
           headers: {
-            "x-user-id": user.id,
+            "x-user-id": user.id as string,
+
           },
         });
 
