@@ -14,31 +14,31 @@ export default function Dashboard() {
 
   // Charger les crédits une fois l'utilisateur chargé
   useEffect(() => {
-    if (!isLoaded || !user || !user.id) return;
-  
+    if (!isLoaded) return;
+    if (!user || !user.id) return;
+
     const baseUrl =
       process.env.NEXT_PUBLIC_BACKEND_URL || "https://aurisvoice.onrender.com";
-  
+
     async function fetchCredits() {
       if (!user || !user.id) return;
-  
+
       try {
         setLoadingCredits(true);
-  
+
         const res = await fetch(`${baseUrl}/api/credits`, {
           headers: {
-            "x-user-id": user.id as string,
+            "x-user-email": user.primaryEmailAddress?.emailAddress.toLowerCase() || "",
           },
         });
-  
+
         const data = await res.json();
-  
+
         if (!data.ok) {
           setCredits(0);
-          return;
+        } else {
+          setCredits(data.credits || 0);
         }
-  
-        setCredits(data.credits || 0);
       } catch (error) {
         console.error("Failed to fetch credits", error);
         setCredits(0);
@@ -46,7 +46,7 @@ export default function Dashboard() {
         setLoadingCredits(false);
       }
     }
-  
+
     fetchCredits();
   }, [isLoaded, user]);
   
@@ -89,7 +89,7 @@ export default function Dashboard() {
           <p className="text-gray-400">Chargement des crédits...</p>
         ) : (
           <p className="text-2xl font-bold text-purple-400">
-            {credits !== null ? credits : "0"} crédits restants
+            {credits !== null ? credits : 0} crédits restants
           </p>
         )}
           </div>

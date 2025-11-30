@@ -36,13 +36,13 @@ export async function getCredits(): Promise<CreditsResponse> {
       throw new Error('NEXT_PUBLIC_BACKEND_URL is not defined');
     }
 
-    // Get user ID from Clerk if available
-    const userId = typeof window !== 'undefined' ? (window as any).__clerkUserId : null;
+    // Get user email from Clerk if available
+    const userEmail = typeof window !== 'undefined' ? (window as any).__clerkUserEmail : null;
     const headers: HeadersInit = {
       'Accept': 'application/json',
     };
-    if (userId) {
-      headers['x-user-id'] = userId;
+    if (userEmail) {
+      headers['x-user-email'] = userEmail.toLowerCase();
     }
 
     const response = await fetch(`${API_URL}/api/credits`, {
@@ -85,14 +85,14 @@ export async function createCheckoutSession(plan: 'starter' | 'pro' | 'premium')
       throw new Error('NEXT_PUBLIC_BACKEND_URL is not defined');
     }
 
-    // Get user ID from Clerk if available
-    const userId = typeof window !== 'undefined' ? (window as any).__clerkUserId : null;
+    // Get user email from Clerk if available
+    const userEmail = typeof window !== 'undefined' ? (window as any).__clerkUserEmail : null;
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     };
-    if (userId) {
-      headers['x-user-id'] = userId;
+    if (userEmail) {
+      headers['x-user-email'] = userEmail.toLowerCase();
     }
 
     const response = await fetch(`${API_URL}/api/stripe/checkout`, {

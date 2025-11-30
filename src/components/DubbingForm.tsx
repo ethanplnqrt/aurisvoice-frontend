@@ -15,10 +15,10 @@ interface DubbingFormProps {
 export function DubbingForm({ onSuccess, onError }: DubbingFormProps) {
   const { user } = useUser();
   
-  // Set user ID in window for API calls
+  // Set user email in window for API calls
   useEffect(() => {
-    if (user?.id) {
-      (window as any).__clerkUserId = user.id;
+    if (user?.primaryEmailAddress?.emailAddress) {
+      (window as any).__clerkUserEmail = user.primaryEmailAddress.emailAddress.toLowerCase();
     }
   }, [user]);
 

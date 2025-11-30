@@ -5,16 +5,17 @@
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL as string;
 
 /**
- * Get Clerk user ID for API calls
+ * Get Clerk user email for API calls
  * This function should be called from client components using useUser()
  */
-export function getUserId(): string | null {
+export function getUserEmail(): string | null {
   if (typeof window === 'undefined') return null;
   
   // Try to get from Clerk (client-side only)
   try {
     // This will be set by the component calling the API
-    return (window as any).__clerkUserId || null;
+    const email = (window as any).__clerkUserEmail || null;
+    return email ? email.toLowerCase() : null;
   } catch {
     return null;
   }
@@ -104,13 +105,13 @@ export async function generateDub(
       console.log(`🎤 Voice model: ${voiceId}`);
     }
 
-    // Get user ID from Clerk (if available)
-    const userId = getUserId();
+    // Get user email from Clerk (if available)
+    const userEmail = getUserEmail();
 
     // Send request to backend
     const headers: HeadersInit = {};
-    if (userId) {
-      headers['x-user-id'] = userId;
+    if (userEmail) {
+      headers['x-user-email'] = userEmail;
     }
     
     const response = await fetch(`${API_URL}/api/dub`, {

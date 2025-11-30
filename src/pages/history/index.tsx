@@ -43,10 +43,10 @@ export default function History() {
   const [languageFilter, setLanguageFilter] = useState('all');
   const [modelFilter, setModelFilter] = useState('all');
 
-  // Set user ID in window for API calls
+  // Set user email in window for API calls
   useEffect(() => {
-    if (user?.id) {
-      (window as any).__clerkUserId = user.id;
+    if (user?.primaryEmailAddress?.emailAddress) {
+      (window as any).__clerkUserEmail = user.primaryEmailAddress.emailAddress.toLowerCase();
     }
   }, [user]);
 
@@ -61,13 +61,13 @@ export default function History() {
       try {
         const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://aurisvoice.onrender.com';
         
-        // Get user ID from Clerk
-        const userId = user?.id || null;
+        // Get user email from Clerk
+        const userEmail = user?.primaryEmailAddress?.emailAddress || null;
         const headers: HeadersInit = { 
           'Accept': 'application/json' 
         };
-        if (userId) {
-          headers['x-user-id'] = userId;
+        if (userEmail) {
+          headers['x-user-email'] = userEmail.toLowerCase();
         }
         
         const res = await fetch(`${baseUrl}/api/history`, { 
