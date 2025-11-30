@@ -1,10 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Play, Pause, Loader2 } from 'lucide-react';
-import type { VoiceProfile } from '@/lib/voices';
-import { useAudioPreview } from '@/hooks/useAudioPreview';
-import { useToast, ToastContainer } from '@/components/Toast';
+import { useState } from "react";
+import { Play, Pause, Loader2 } from "lucide-react";
+import type { VoiceProfile } from "@/lib/voices";
+import { useAudioPreview } from "@/hooks/useAudioPreview";
 
 interface VoiceGridProps {
   voices: VoiceProfile[];
@@ -12,23 +11,28 @@ interface VoiceGridProps {
   onSelect: (voiceId: string) => void;
 }
 
-const GENDER_LABELS: Record<VoiceProfile['gender'], string> = {
-  male: 'Homme',
-  female: 'Femme',
-  neutral: 'Neutre',
-  robotic: 'Robotique',
+const GENDER_LABELS: Record<VoiceProfile["gender"], string> = {
+  male: "Homme",
+  female: "Femme",
+  neutral: "Neutre",
+  robotic: "Robotique",
 };
 
-const GENDER_COLORS: Record<VoiceProfile['gender'], string> = {
-  male: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-  female: 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200',
-  neutral: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
-  robotic: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+const GENDER_COLORS: Record<VoiceProfile["gender"], string> = {
+  male: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+  female: "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200",
+  neutral: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200",
+  robotic:
+    "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
 };
 
-export function VoiceGrid({ voices, selectedVoiceId, onSelect }: VoiceGridProps) {
-  const { isPlaying, currentVoiceId, play, playFromApi, stop } = useAudioPreview();
-  const { toasts, showToast, removeToast } = useToast();
+export function VoiceGrid({
+  voices,
+  selectedVoiceId,
+  onSelect,
+}: VoiceGridProps) {
+  const { isPlaying, currentVoiceId, play, playFromApi, stop } =
+    useAudioPreview();
   const [loadingVoices, setLoadingVoices] = useState<Set<string>>(new Set());
 
   const handlePreview = async (voice: VoiceProfile, e: React.MouseEvent) => {
@@ -54,13 +58,9 @@ export function VoiceGrid({ voices, selectedVoiceId, onSelect }: VoiceGridProps)
     setLoadingVoices((prev) => new Set(prev).add(voice.id));
 
     try {
-      const blobUrl = await playFromApi(voice.id);
-      if (!blobUrl) {
-        showToast('Impossible de générer l\'aperçu audio. Veuillez réessayer.', 'error');
-      }
+      await playFromApi(voice.id);
     } catch (error) {
-      console.error('Preview error:', error);
-      showToast('Erreur lors de la génération de l\'aperçu audio.', 'error');
+      console.warn("Failed to fetch preview");
     } finally {
       setLoadingVoices((prev) => {
         const next = new Set(prev);
@@ -80,13 +80,11 @@ export function VoiceGrid({ voices, selectedVoiceId, onSelect }: VoiceGridProps)
   }
 
   return (
-    <>
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {voices.map((voice) => {
-          const isSelected = selectedVoiceId === voice.id;
-          const isPreviewPlaying = isPlaying && currentVoiceId === voice.id;
-          const isLoading = loadingVoices.has(voice.id);
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {voices.map((voice) => {
+        const isSelected = selectedVoiceId === voice.id;
+        const isPreviewPlaying = isPlaying && currentVoiceId === voice.id;
+        const isLoading = loadingVoices.has(voice.id);
 
         return (
           <div
@@ -94,8 +92,8 @@ export function VoiceGrid({ voices, selectedVoiceId, onSelect }: VoiceGridProps)
             onClick={() => onSelect(voice.id)}
             className={`relative p-6 bg-white dark:bg-gray-800 border-2 rounded-xl cursor-pointer transition-all hover:shadow-lg ${
               isSelected
-                ? 'border-primary-500 shadow-lg ring-2 ring-primary-500/20'
-                : 'border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700'
+                ? "border-primary-500 shadow-lg ring-2 ring-primary-500/20"
+                : "border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700"
             }`}
           >
             {/* Badge de sélection */}
@@ -161,10 +159,10 @@ export function VoiceGrid({ voices, selectedVoiceId, onSelect }: VoiceGridProps)
                 disabled={isLoading}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   isLoading
-                    ? 'bg-blue-400 text-white cursor-wait'
+                    ? "bg-blue-400 text-white cursor-wait"
                     : isPreviewPlaying
-                    ? 'bg-red-500 text-white hover:bg-red-600'
-                    : 'bg-blue-500 text-white hover:bg-blue-600'
+                      ? "bg-red-500 text-white hover:bg-red-600"
+                      : "bg-blue-500 text-white hover:bg-blue-600"
                 }`}
               >
                 {isLoading ? (
@@ -194,8 +192,6 @@ export function VoiceGrid({ voices, selectedVoiceId, onSelect }: VoiceGridProps)
           </div>
         );
       })}
-      </div>
-    </>
+    </div>
   );
 }
-

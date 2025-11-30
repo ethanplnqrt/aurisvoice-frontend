@@ -4,9 +4,10 @@
  * Supporte les URLs statiques et la génération via API
  */
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from "react";
 
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://aurisvoice.onrender.com';
+const API_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "https://aurisvoice.onrender.com";
 
 export interface UseAudioPreviewReturn {
   isPlaying: boolean;
@@ -79,8 +80,8 @@ export function useAudioPreview(): UseAudioPreviewReturn {
       };
 
       audio.onerror = (e) => {
-        console.error('Audio preview error:', e);
-        setError('Impossible de lire l\'extrait audio');
+        console.error("Audio preview error:", e);
+        setError("Impossible de lire l'extrait audio");
         setIsPlaying(false);
         setCurrentUrl(null);
         setCurrentVoiceId(null);
@@ -89,16 +90,16 @@ export function useAudioPreview(): UseAudioPreviewReturn {
 
       // Lancer la lecture
       audio.play().catch((err) => {
-        console.error('Audio play error:', err);
-        setError('Impossible de lire l\'extrait audio');
+        console.error("Audio play error:", err);
+        setError("Impossible de lire l'extrait audio");
         setIsPlaying(false);
         setCurrentUrl(null);
         setCurrentVoiceId(null);
         audioRef.current = null;
       });
     } catch (err) {
-      console.error('Audio preview error:', err);
-      setError('Erreur lors de la lecture audio');
+      console.error("Audio preview error:", err);
+      setError("Erreur lors de la lecture audio");
       setIsPlaying(false);
       setCurrentUrl(null);
       setCurrentVoiceId(null);
@@ -111,31 +112,70 @@ export function useAudioPreview(): UseAudioPreviewReturn {
    */
   const playFromApi = async (voiceId: string): Promise<string | null> => {
     try {
-      const response = await fetch(`${API_URL}/api/preview-voice?voice_id=${voiceId}`, {
-        method: 'GET',
-      });
+      const response = await fetch(
+        `${API_URL}/api/preview-voice?voice_id=${voiceId}`,
+        {
+          method: "GET",
+        },
+      );
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch preview: ${response.statusText}`);
+        console.warn("Failed to fetch preview");
+        return null;
       }
 
-      // Check if response is audio/mpeg
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('audio')) {
-        throw new Error('Invalid response type: expected audio/mpeg');
+      // Stop any currently playing audio
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
       }
 
       // Convert response to blob and create object URL
       const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
 
-      // Play the audio with voice ID for tracking
-      play(blobUrl, voiceId);
+      // Play the audio
+      audio.play().catch(() => {
+        console.warn("Failed to fetch preview");
+        URL.revokeObjectURL(url);
+      });
 
-      return blobUrl;
+      // Store audio reference and voice ID for tracking
+      audioRef.current = audio;
+      setCurrentVoiceId(voiceId);
+      setCurrentUrl(url);
+
+      // Handle audio events
+      audio.onplay = () => {
+        setIsPlaying(true);
+        setError(null);
+      };
+
+      audio.onpause = () => {
+        setIsPlaying(false);
+      };
+
+      audio.onended = () => {
+        setIsPlaying(false);
+        setCurrentUrl(null);
+        setCurrentVoiceId(null);
+        audioRef.current = null;
+        URL.revokeObjectURL(url);
+      };
+
+      audio.onerror = () => {
+        console.warn("Failed to fetch preview");
+        setIsPlaying(false);
+        setCurrentUrl(null);
+        setCurrentVoiceId(null);
+        audioRef.current = null;
+        URL.revokeObjectURL(url);
+      };
+
+      return url;
     } catch (err) {
-      console.error('Failed to fetch preview from API:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch preview');
+      console.warn("Failed to fetch preview");
       return null;
     }
   };
@@ -147,7 +187,7 @@ export function useAudioPreview(): UseAudioPreviewReturn {
       audioRef.current = null;
     }
     // Clean up blob URLs
-    if (currentUrl && currentUrl.startsWith('blob:')) {
+    if (currentUrl && currentUrl.startsWith("blob:")) {
       URL.revokeObjectURL(currentUrl);
     }
     setIsPlaying(false);
@@ -166,4 +206,3 @@ export function useAudioPreview(): UseAudioPreviewReturn {
     error,
   };
 }
-
