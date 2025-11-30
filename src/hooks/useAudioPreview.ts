@@ -113,7 +113,7 @@ export function useAudioPreview(): UseAudioPreviewReturn {
   const playFromApi = async (voiceId: string): Promise<string | null> => {
     try {
       const response = await fetch(
-        `${API_URL}/api/preview-voice?voice_id=${voiceId}`,
+        `${API_URL}/preview-voice?voice_id=${voiceId}`,
         {
           method: "GET",
         },
