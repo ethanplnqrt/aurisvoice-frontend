@@ -1,8 +1,10 @@
 'use client';
 
-import { Play, Pause } from 'lucide-react';
+import { useState } from 'react';
+import { Play, Pause, Loader2 } from 'lucide-react';
 import type { VoiceProfile } from '@/lib/voices';
 import { useAudioPreview } from '@/hooks/useAudioPreview';
+import { useToast, ToastContainer } from '@/components/Toast';
 
 interface VoiceGridProps {
   voices: VoiceProfile[];
@@ -25,19 +27,46 @@ const GENDER_COLORS: Record<VoiceProfile['gender'], string> = {
 };
 
 export function VoiceGrid({ voices, selectedVoiceId, onSelect }: VoiceGridProps) {
-  const { isPlaying, currentUrl, play, stop } = useAudioPreview();
+  const { isPlaying, currentVoiceId, play, playFromApi, stop } = useAudioPreview();
+  const { toasts, showToast, removeToast } = useToast();
+  const [loadingVoices, setLoadingVoices] = useState<Set<string>>(new Set());
 
-  const handlePreview = (voice: VoiceProfile, e: React.MouseEvent) => {
+  const handlePreview = async (voice: VoiceProfile, e: React.MouseEvent) => {
     e.stopPropagation();
+
+    // If already playing this voice, stop it
+    if (isPlaying && currentVoiceId === voice.id) {
+      stop();
+      return;
+    }
+
+    // If voice has a static previewUrl, use it
     if (voice.previewUrl) {
-      if (isPlaying && currentUrl === voice.previewUrl) {
+      if (isPlaying && currentVoiceId === voice.id) {
         stop();
       } else {
-        play(voice.previewUrl);
+        play(voice.previewUrl, voice.id);
       }
-    } else {
-      // Placeholder: on pourrait afficher un message ou utiliser un audio de test
-      console.log('Preview non disponible pour:', voice.name);
+      return;
+    }
+
+    // Otherwise, fetch from API
+    setLoadingVoices((prev) => new Set(prev).add(voice.id));
+
+    try {
+      const blobUrl = await playFromApi(voice.id);
+      if (!blobUrl) {
+        showToast('Impossible de générer l\'aperçu audio. Veuillez réessayer.', 'error');
+      }
+    } catch (error) {
+      console.error('Preview error:', error);
+      showToast('Erreur lors de la génération de l\'aperçu audio.', 'error');
+    } finally {
+      setLoadingVoices((prev) => {
+        const next = new Set(prev);
+        next.delete(voice.id);
+        return next;
+      });
     }
   };
 
@@ -51,10 +80,13 @@ export function VoiceGrid({ voices, selectedVoiceId, onSelect }: VoiceGridProps)
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {voices.map((voice) => {
-        const isSelected = selectedVoiceId === voice.id;
-        const isPreviewPlaying = isPlaying && currentUrl === voice.previewUrl;
+    <>
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {voices.map((voice) => {
+          const isSelected = selectedVoiceId === voice.id;
+          const isPreviewPlaying = isPlaying && currentVoiceId === voice.id;
+          const isLoading = loadingVoices.has(voice.id);
 
         return (
           <div
@@ -126,16 +158,21 @@ export function VoiceGrid({ voices, selectedVoiceId, onSelect }: VoiceGridProps)
               <button
                 type="button"
                 onClick={(e) => handlePreview(voice, e)}
-                disabled={!voice.previewUrl}
+                disabled={isLoading}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  voice.previewUrl
-                    ? isPreviewPlaying
-                      ? 'bg-red-500 text-white hover:bg-red-600'
-                      : 'bg-primary-500 text-white hover:bg-primary-600'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                  isLoading
+                    ? 'bg-blue-400 text-white cursor-wait'
+                    : isPreviewPlaying
+                    ? 'bg-red-500 text-white hover:bg-red-600'
+                    : 'bg-blue-500 text-white hover:bg-blue-600'
                 }`}
               >
-                {isPreviewPlaying ? (
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Chargement...</span>
+                  </>
+                ) : isPreviewPlaying ? (
                   <>
                     <Pause className="w-4 h-4" />
                     <span>Arrêter</span>
@@ -157,7 +194,8 @@ export function VoiceGrid({ voices, selectedVoiceId, onSelect }: VoiceGridProps)
           </div>
         );
       })}
-    </div>
+      </div>
+    </>
   );
 }
 

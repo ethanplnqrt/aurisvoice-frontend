@@ -1,14 +1,19 @@
 /**
  * Hook pour la préécoute d'extraits audio
  * Gère la lecture d'un seul audio à la fois
+ * Supporte les URLs statiques et la génération via API
  */
 
 import { useState, useRef, useEffect } from 'react';
 
+const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://aurisvoice.onrender.com';
+
 export interface UseAudioPreviewReturn {
   isPlaying: boolean;
   currentUrl: string | null;
-  play: (url: string) => void;
+  currentVoiceId: string | null;
+  play: (url: string, voiceId?: string) => void;
+  playFromApi: (voiceId: string) => Promise<string | null>;
   stop: () => void;
   error: string | null;
 }
@@ -16,6 +21,7 @@ export interface UseAudioPreviewReturn {
 export function useAudioPreview(): UseAudioPreviewReturn {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentUrl, setCurrentUrl] = useState<string | null>(null);
+  const [currentVoiceId, setCurrentVoiceId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -29,7 +35,7 @@ export function useAudioPreview(): UseAudioPreviewReturn {
     };
   }, []);
 
-  const play = (url: string) => {
+  const play = (url: string, voiceId?: string) => {
     try {
       // Arrêter l'audio précédent s'il existe
       if (audioRef.current) {
@@ -37,8 +43,12 @@ export function useAudioPreview(): UseAudioPreviewReturn {
         audioRef.current = null;
       }
 
-      // Si on clique sur le même audio, on l'arrête
-      if (currentUrl === url && isPlaying) {
+      // Si on clique sur le même audio/voice, on l'arrête
+      if (voiceId && currentVoiceId === voiceId && isPlaying) {
+        stop();
+        return;
+      }
+      if (!voiceId && currentUrl === url && isPlaying) {
         stop();
         return;
       }
@@ -51,6 +61,9 @@ export function useAudioPreview(): UseAudioPreviewReturn {
       audio.onplay = () => {
         setIsPlaying(true);
         setCurrentUrl(url);
+        if (voiceId) {
+          setCurrentVoiceId(voiceId);
+        }
         setError(null);
       };
 
@@ -61,6 +74,7 @@ export function useAudioPreview(): UseAudioPreviewReturn {
       audio.onended = () => {
         setIsPlaying(false);
         setCurrentUrl(null);
+        setCurrentVoiceId(null);
         audioRef.current = null;
       };
 
@@ -69,6 +83,7 @@ export function useAudioPreview(): UseAudioPreviewReturn {
         setError('Impossible de lire l\'extrait audio');
         setIsPlaying(false);
         setCurrentUrl(null);
+        setCurrentVoiceId(null);
         audioRef.current = null;
       };
 
@@ -78,6 +93,7 @@ export function useAudioPreview(): UseAudioPreviewReturn {
         setError('Impossible de lire l\'extrait audio');
         setIsPlaying(false);
         setCurrentUrl(null);
+        setCurrentVoiceId(null);
         audioRef.current = null;
       });
     } catch (err) {
@@ -85,6 +101,42 @@ export function useAudioPreview(): UseAudioPreviewReturn {
       setError('Erreur lors de la lecture audio');
       setIsPlaying(false);
       setCurrentUrl(null);
+      setCurrentVoiceId(null);
+    }
+  };
+
+  /**
+   * Fetch preview audio from API and return blob URL
+   * Returns null on error
+   */
+  const playFromApi = async (voiceId: string): Promise<string | null> => {
+    try {
+      const response = await fetch(`${API_URL}/api/preview-voice?voice_id=${voiceId}`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch preview: ${response.statusText}`);
+      }
+
+      // Check if response is audio/mpeg
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('audio')) {
+        throw new Error('Invalid response type: expected audio/mpeg');
+      }
+
+      // Convert response to blob and create object URL
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      // Play the audio with voice ID for tracking
+      play(blobUrl, voiceId);
+
+      return blobUrl;
+    } catch (err) {
+      console.error('Failed to fetch preview from API:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch preview');
+      return null;
     }
   };
 
@@ -94,15 +146,22 @@ export function useAudioPreview(): UseAudioPreviewReturn {
       audioRef.current.currentTime = 0;
       audioRef.current = null;
     }
+    // Clean up blob URLs
+    if (currentUrl && currentUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(currentUrl);
+    }
     setIsPlaying(false);
     setCurrentUrl(null);
+    setCurrentVoiceId(null);
     setError(null);
   };
 
   return {
     isPlaying,
     currentUrl,
+    currentVoiceId,
     play,
+    playFromApi,
     stop,
     error,
   };
