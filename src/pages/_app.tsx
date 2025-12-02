@@ -2,7 +2,7 @@ import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
 import { AnimatePresence } from 'framer-motion';
-import { ClerkProvider } from "@clerk/clerk-react";
+import { ClerkProvider } from "@clerk/nextjs";
 import dynamic from "next/dynamic";
 import { ThemeProvider } from '@/components/ThemeProvider';
 const Navbar = dynamic(() => import("@/components/Navbar").then(mod => ({ default: mod.Navbar })), { ssr: false });
@@ -29,10 +29,11 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <ClerkProvider
       publishableKey={clerkPublishableKey}
-      signInUrl="/sign-in"
-      signUpUrl="/sign-up"
-      afterSignInUrl="/dashboard"
-      afterSignUpUrl="/dashboard"
+      signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || "/sign-in"}
+      signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL || "/sign-up"}
+      afterSignInUrl={process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL || "/dashboard"}
+      afterSignUpUrl={process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL || "/dashboard"}
+      {...pageProps}
     >
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-950 via-purple-950 to-black">

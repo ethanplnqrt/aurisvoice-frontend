@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import { useTranslation } from '@/i18n/useTranslation';
-import { UserButton, useUser } from '@clerk/clerk-react';
+import { UserButton, useUser } from '@clerk/nextjs';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { InstallButton } from './InstallButton';

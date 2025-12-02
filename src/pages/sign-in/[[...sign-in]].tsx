@@ -1,14 +1,16 @@
-"use client";
-
-import { SignIn } from "@clerk/clerk-react";
+import { SignIn } from "@clerk/nextjs";
 
 export default function SignInPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-950 via-purple-950 to-black">
-      <SignIn />
+      <SignIn 
+        routing="path" 
+        path="/sign-in"
+        signUpUrl="/sign-up"
+        redirectUrl="/dashboard"
+        afterSignInUrl="/dashboard"
+      />
     </div>
   );
 }
-
-export const getServerSideProps = () => ({ props: {} });
 

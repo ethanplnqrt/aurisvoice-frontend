@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser } from '@clerk/clerk-react';
+import { useUser } from '@clerk/nextjs';
 import { FileUpload } from './FileUpload';
 import { VoiceAndLanguagePanel } from './dubbing/VoiceAndLanguagePanel';
 import { generateDub } from '@/lib/api';

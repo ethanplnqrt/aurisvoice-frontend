@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useUser, RedirectToSignIn } from '@clerk/clerk-react';
+import { useUser, RedirectToSignIn } from '@clerk/nextjs';
 import {
   CreditCard,
   Sparkles,

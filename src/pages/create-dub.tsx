@@ -1,4 +1,4 @@
-import { useUser, RedirectToSignIn } from '@clerk/clerk-react';
+import { useUser, RedirectToSignIn } from '@clerk/nextjs';
 import Head from 'next/head';
 import dynamic from 'next/dynamic';
 
