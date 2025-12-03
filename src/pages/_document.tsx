@@ -4,12 +4,19 @@ export default function Document() {
   return (
     <Html lang="fr">
       <Head>
+        {/* Essential Meta Tags - MUST BE FIRST */}
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+        
+        {/* PWA Manifest - HIGH PRIORITY */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#0f0220" />
+        
+        {/* Basic Meta */}
         <link rel="icon" href="/favicon.ico" />
         <meta name="description" content="AurisVoice - La Rolls du doublage vocal IA. Transformez vos contenus audio et vidéo en doublages professionnels." />
         
-        {/* PWA Manifest */}
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#0f0220" />
+        {/* PWA Mobile Capabilities */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -29,9 +36,6 @@ export default function Document() {
         <link rel="apple-touch-startup-image" href="/splash/iphone-12-pro-max.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)" />
         <link rel="apple-touch-startup-image" href="/splash/ipad.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)" />
         
-        {/* Safe Area Insets for iOS */}
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-        
         {/* OpenGraph Meta Tags */}
         <meta property="og:type" content="website" />
         <meta property="og:title" content="AurisVoice - La Rolls du doublage vocal IA" />
@@ -46,6 +50,8 @@ export default function Document() {
         {/* Additional SEO */}
         <meta name="keywords" content="AI, dubbing, voice, audio, video, translation, French, English, Spanish" />
         <meta name="author" content="AurisVoice" />
+        
+        {/* Preconnect for Performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </Head>
