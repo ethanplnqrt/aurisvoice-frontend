@@ -3,6 +3,7 @@
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import Head from "next/head";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -77,10 +78,20 @@ export default function Dashboard() {
 
   // --- FIN : rendu final ---
   return (
-    <div className="text-white p-10">
-      <h1 className="text-3xl font-bold mb-6">
-        Bienvenue, {user.firstName || "Utilisateur"} 👋
-      </h1>
+    <>
+      <Head>
+        <title>Dashboard - AurisVoice</title>
+        <meta name="description" content="Tableau de bord AurisVoice - Gérez vos doublages IA" />
+        {/* PWA Essential Tags */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#0f0220" />
+        <link rel="icon" href="/icons/icon-192x192.png" />
+      </Head>
+      
+      <div className="text-white p-10">
+        <h1 className="text-3xl font-bold mb-6">
+          Bienvenue, {user.firstName || "Utilisateur"} 👋
+        </h1>
 
       <div className="bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-700">
         <h2 className="text-xl mb-2 font-semibold">Vos crédits</h2>
@@ -117,5 +128,6 @@ export default function Dashboard() {
                   </button>
       </div>
     </div>
+    </>
   );
 }
