@@ -1,3 +1,5 @@
+const path = require("path");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -14,28 +16,24 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/sw.js',
+        source: "/manifest.json",
         headers: [
-          {
-            key: 'Cache-Control',
-            value: 'no-cache',
-          },
+          { key: "Content-Type", value: "application/manifest+json" },
+          { key: "Cache-Control", value: "no-store, must-revalidate" }
         ],
       },
       {
-        source: '/manifest.json',
+        source: "/sw.js",
         headers: [
-          {
-            key: 'Content-Type',
-            value: 'application/manifest+json',
-          },
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=0, must-revalidate',
-          },
+          { key: "Cache-Control", value: "no-store" }
         ],
       },
     ];
+  },
+  // Webpack configuration to ensure public folder is properly resolved
+  webpack(config) {
+    config.resolve.alias["@public"] = path.resolve(__dirname, "public");
+    return config;
   },
 };
 
