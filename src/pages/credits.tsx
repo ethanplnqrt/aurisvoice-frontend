@@ -151,6 +151,10 @@ function CreditsContent() {
       <Head>
         <title>Mes Crédits - AurisVoice</title>
         <meta name="description" content="Gérez vos crédits de doublage IA" />
+        {/* PWA Essential Tags */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#0f0220" />
+        <link rel="icon" href="/icons/icon-192x192.png" />
       </Head>
 
       <div className="min-h-[calc(100vh-128px)] bg-gradient-to-br from-indigo-950 via-purple-950 to-black py-12">

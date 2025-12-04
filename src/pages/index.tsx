@@ -17,6 +17,12 @@ export default function Home() {
           content="Doublez vos vidéos et audios dans n'importe quelle langue avec des voix IA premium. Paiement par crédits, résultats professionnels instantanés." 
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        
+        {/* PWA Essential Tags */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#0f0220" />
+        <link rel="icon" href="/icons/icon-192x192.png" />
+        
         <meta name="keywords" content="doublage IA, traduction vocale, voix artificielle, AI dubbing, traduction audio, voix premium" />
         <meta property="og:title" content="AurisVoice - AI Dubbing Premium" />
         <meta property="og:description" content="Doublez vos vidéos et audios dans n'importe quelle langue avec des voix IA premium." />

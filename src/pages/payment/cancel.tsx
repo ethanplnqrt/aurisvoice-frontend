@@ -11,6 +11,10 @@ export default function PaymentCancel() {
       <Head>
         <title>Paiement Annulé - AurisVoice</title>
         <meta name="description" content="Votre paiement a été annulé" />
+        {/* PWA Essential Tags */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#0f0220" />
+        <link rel="icon" href="/icons/icon-192x192.png" />
       </Head>
 
       <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-black flex items-center justify-center px-4">

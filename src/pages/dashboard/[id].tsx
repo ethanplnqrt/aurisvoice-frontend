@@ -174,6 +174,10 @@ export default function StudioPlayer() {
       <Head>
         <title>Studio - {project.name} - AurisVoice</title>
         <meta name="description" content="Studio de lecture et édition audio AurisVoice" />
+        {/* PWA Essential Tags */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#0f0220" />
+        <link rel="icon" href="/icons/icon-192x192.png" />
       </Head>
 
       {/* Audio Element */}

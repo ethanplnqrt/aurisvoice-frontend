@@ -147,6 +147,10 @@ export default function MobileTestsPage() {
       <Head>
         <title>Tests Mobile - AurisVoice</title>
         <meta name="description" content="Tests et diagnostics pour l'application mobile AurisVoice" />
+        {/* PWA Essential Tags */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#0f0220" />
+        <link rel="icon" href="/icons/icon-192x192.png" />
       </Head>
       
       <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-black py-12 px-4">

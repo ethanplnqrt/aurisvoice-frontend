@@ -24,6 +24,10 @@ export default function CreateDubPage() {
       <Head>
         <title>Créer un doublage - AurisVoice</title>
         <meta name="description" content="Créez un doublage IA pour votre fichier audio ou vidéo" />
+        {/* PWA Essential Tags */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#0f0220" />
+        <link rel="icon" href="/icons/icon-192x192.png" />
       </Head>
       <div className="container mx-auto py-12 px-4">
         <h1 className="text-4xl font-bold text-white mb-8 text-center">

@@ -46,6 +46,10 @@ export default function About() {
       <Head>
         <title>{t('about_title')} - AurisVoice</title>
         <meta name="description" content={t('about_description')} />
+        {/* PWA Essential Tags */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#0f0220" />
+        <link rel="icon" href="/icons/icon-192x192.png" />
       </Head>
 
       <div className="min-h-[calc(100vh-128px)]">
