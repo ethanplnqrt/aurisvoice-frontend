@@ -9,8 +9,7 @@ const Navbar = dynamic(() => import("@/components/Navbar").then(mod => ({ defaul
 import { Footer } from '@/components/Footer';
 import { TransitionWrapper } from '@/components/TransitionWrapper';
 import { ScrollToTop } from '@/components/ScrollToTop';
-// TEMPORARY: Service Worker disabled for PWA debugging
-// import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister';
+import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister';
 import { InstallPrompt } from '@/components/InstallPrompt';
 import { CapacitorDetector } from '@/components/CapacitorDetector';
 
@@ -52,8 +51,7 @@ export default function App({ Component, pageProps }: AppProps) {
           <Footer />
 
           <ScrollToTop />
-          {/* TEMPORARY: Service Worker disabled for PWA debugging */}
-          {/* <ServiceWorkerRegister /> */}
+          <ServiceWorkerRegister />
           <InstallPrompt />
           <CapacitorDetector />
 
